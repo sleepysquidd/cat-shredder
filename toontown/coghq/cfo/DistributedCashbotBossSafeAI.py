@@ -23,6 +23,7 @@ class DistributedCashbotBossSafeAI(DistributedCashbotBossObjectAI.DistributedCas
     def __init__(self, air, boss, index):
         DistributedCashbotBossObjectAI.DistributedCashbotBossObjectAI.__init__(self, air, boss)
         self.index = index
+        self.stored_damage = 0
 
         self.avoidHelmet = 0
 
@@ -85,6 +86,12 @@ class DistributedCashbotBossSafeAI(DistributedCashbotBossObjectAI.DistributedCas
                 damage *= crane.getDamageMultiplier()
                 damage *= self.boss.ruleset.SAFE_CFO_DAMAGE_MULTIPLIER
                 damage = math.ceil(damage)
+
+                # Adds all stored damage to the hit,
+                # then resets it and updates model
+                damage += self.stored_damage
+                self.stored_damage = 0
+                self.sendUpdate("storedDamage", [self.stored_damage])
 
                 self.boss.recordHit(max(damage, 2), impact, craneId)
 
@@ -172,6 +179,9 @@ class DistributedCashbotBossSafeAI(DistributedCashbotBossObjectAI.DistributedCas
         self.sendUpdate("move", [x, y, z, rotation])
 
     # Called from client when a safe destroys a goon
-    def destroyedGoon(self):
+    def destroyedGoon(self, scale):
+        # Record the max potential damage
+        self.stored_damage = min(self.stored_damage + (scale * 20), 50)
+        self.sendUpdate("storedDamage", [self.stored_damage])
         avId = self.air.getAvatarIdFromSender()
         self.boss.d_updateGoonKilledBySafe(avId)

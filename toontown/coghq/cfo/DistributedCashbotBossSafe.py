@@ -130,7 +130,14 @@ class DistributedCashbotBossSafe(DistributedCashbotBossObject.DistributedCashbot
             goon.doLocalStun()
         else:
             goon.b_destroyGoon()
-            self.sendUpdate("destroyedGoon", [])
+            # Send the server the scale of the goon
+            # so it can calculate potential damage.
+            self.sendUpdate("destroyedGoon", [goon.scale])
+
+    # Used to update the model and tint it red
+    def storedDamage(self, stored_damage):
+        new_color = 1 - (0.02 * stored_damage)
+        self.setColorScale((1,new_color,new_color,1))
 
     def resetToInitialPosition(self):
         posHpr = CraneLeagueGlobals.SAFE_POSHPR[self.index]
