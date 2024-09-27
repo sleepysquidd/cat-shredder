@@ -87,13 +87,12 @@ class DistributedCashbotBossSafeAI(DistributedCashbotBossObjectAI.DistributedCas
                 damage *= self.boss.ruleset.SAFE_CFO_DAMAGE_MULTIPLIER
                 damage = math.ceil(damage)
 
-                # Adds all stored damage to the hit,
-                # then resets it and updates model
-                damage += self.stored_damage
+                # Passes the stored damage as an extra param
+                # so that it's unaffected by momentum calculations.
+                # Afterward reset the damage to 0 and update the model
+                self.boss.recordHit(max(damage, 2), impact, craneId, self.stored_damage)
                 self.stored_damage = 0
                 self.sendUpdate("storedDamage", [self.stored_damage])
-
-                self.boss.recordHit(max(damage, 2), impact, craneId)
 
             elif self.boss.acceptHelmetFrom(avId):
                 # If he's not dizzy, he grabs the safe and makes a

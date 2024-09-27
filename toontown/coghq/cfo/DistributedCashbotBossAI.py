@@ -793,7 +793,7 @@ class DistributedCashbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
 
         return False
 
-    def recordHit(self, damage, impact=0, craneId=-1):
+    def recordHit(self, damage, impact=0, craneId=-1, stored_damage=0):
         avId = self.air.getAvatarIdFromSender()
         crane = simbase.air.doId2do.get(craneId)
         if not self.validate(avId, avId in self.getInvolvedToonsNotSpectating(), "recordHit from unknown avatar"):
@@ -807,7 +807,7 @@ class DistributedCashbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
             damage *= self.getToonOutgoingMultiplier(avId) / 100.0
 
         # Record a successful hit in battle three.
-        self.b_setBossDamage(self.bossDamage + damage)
+        self.b_setBossDamage(self.bossDamage + damage + stored_damage)
 
         # Award bonus points for hits with maximum impact
         if impact == 1.0:
